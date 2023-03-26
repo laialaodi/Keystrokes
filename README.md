@@ -4,7 +4,7 @@
 
 目前支持的平台有：
 - Windows
-- Linux
+- Linux（目前无法实现）
 
 ## 功能
 
