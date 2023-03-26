@@ -14,6 +14,9 @@
 
 ### 环境要求
 
+- CMake 3.22
+- g++ 8.3.0
+
 ### CMake
 
 项目已写好 `CMakeLists.txt`　，使用 `CMake` 构建即可。
