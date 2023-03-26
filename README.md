@@ -23,7 +23,7 @@ Linux：
 mkdir build
 cd build
 cmake ..
-make
+cmake --build .
 ```
 
 Windows:
