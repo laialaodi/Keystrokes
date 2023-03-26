@@ -8,7 +8,7 @@
 #include <conio.h>
 #include <fstream>
 
-ofstream outFile("lastInput.txt");
+std::ofstream outFile("lastInput.txt");
 
 HHOOK keyboardHook = 0;
 
