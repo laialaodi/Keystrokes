@@ -1,59 +1,86 @@
 #if defined(_WIN32)
 
+// 下列代码段来自https://blog.csdn.net/GDUT_xin/article/details/125418475
+
+#include <cstdio>
+#include <tchar.h>
 #include <windows.h>
 #include <conio.h>
-#include <iostream>
 #include <fstream>
 
-int main()
+ofstream outFile("lastInput.txt");
+
+HHOOK keyboardHook = 0;
+
+LRESULT CALLBACK LowLevelKeyboardProc(
+    _In_ int nCode,
+    _In_ WPARAM wParam,
+    _In_ LPARAM lParam)
 {
-    std::ofstream outFile("lastInput.txt");
-    int ch;
+    KBDLLHOOKSTRUCT *ks = (KBDLLHOOKSTRUCT *)lParam;
+    /*
+    typedef struct tagKBDLLHOOKSTRUCT {
+        DWORD     vkCode;
+        DWORD     scanCode;
+        DWORD     flags;
+        DWORD     time;
+        ULONG_PTR dwExtraInfo;
+    } KBDLLHOOKSTRUCT, *LPKBDLLHOOKSTRUCT, *PKBDLLHOOKSTRUCT;
+    */
+    if (ks->flags & 0b10000000)
+    {
+        if (0x41 <= ks->vkCode && ks->vkCode <= 0x5A)
+        {
+            outFile << "Keys" << ks->vkCode - 0x41 + 'A' << "\r\n";
+        }
+        else if (ks->vkCode == 0x14)
+        {
+            outFile << "Keys CAPS LOCK pressed\n";
+        }
+    }
+
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+int _tmain(int argc, _TCHAR *argv[])
+{
+    SetConsoleOutputCP(65001);
+    // 安装钩子
+    keyboardHook = SetWindowsHookEx(
+        WH_KEYBOARD_LL,
+        LowLevelKeyboardProc,
+        GetModuleHandleA(NULL),
+        NULL);
+    if (keyboardHook == 0)
+    {
+        printf("挂钩键盘失败\n");
+        return -1;
+    }
+
+    // 不可漏掉消息处理，否则程序会卡死
+    MSG msg;
     while (1)
     {
-        if (_kbhit()) // 如果有按键按下，则_kbhit()函数返回真
+        // 如果消息队列中有信息
+        if (PeekMessageA(&msg, NULL, NULL, NULL, PM_REMOVE))
         {
-            ch = _getch(); // 使用_getch()函数获取按下的键值
-            outFile << ch << "\r\n";
-            
+            TranslateMessage(&msg);
+
+            DispatchMessageW(&msg);
         }
-        Sleep(0);
+        else
+        {
+            Sleep(0);
+        }
     }
-    outFile.close();
+
+    // 删除钩子
+    UnhookWindowsHookEx(keyboardHook);
+
     return 0;
+    
 }
+
 #elif defined(__linux__)
 
-#include <termio.h>
-#include <fstream>
-
-int scanKeyboard()
-{
-    int input;
-    struct termios new_settings;
-    struct termios stored_settings;
-    tcgetattr(0, &stored_settings);
-    new_settings = stored_settings;
-    new_settings.c_lflag &= (~ICANON);
-    new_settings.c_cc[VTIME] = 0;
-    tcgetattr(0, &stored_settings);
-    new_settings.c_cc[VMIN] = 1;
-    tcsetattr(0, TCSANOW, &new_settings);
-
-    input = getchar();
-
-    tcsetattr(0, TCSANOW, &stored_settings);
-    return input;
-}
-
-int main(int argc, char *argv[])
-{
-    std::ofstream outFile("lastInput.txt");
-    while (1)
-    {
-        outFile << scanKeyboard() << "\n";
-    }
-    outFile.close();
-    return 0;
-}
 #endif
