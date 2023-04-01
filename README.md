@@ -34,5 +34,5 @@ Windows:
 md build
 cd build
 cmake ..
-make
+cmake --build .
 ```
